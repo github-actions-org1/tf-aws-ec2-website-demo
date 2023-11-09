@@ -30,3 +30,8 @@ variable "ssh_key_pair" {
   default = ""
   type    = string
 }
+
+variable "ssh_private_pair" {
+  default = ""
+  type    = string
+}
