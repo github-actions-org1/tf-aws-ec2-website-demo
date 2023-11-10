@@ -1,46 +1,85 @@
-name: 'Terraform'
+
+name: 'Terraform EC2 Build Demo'
 
 on:
   push:
-    branches: [ "main" ]
+    branches:
+      - "main"
   pull_request:
-
-permissions:
-  contents: read
+  workflow_dispatch: 
+    inputs:
+      tf_destroy:
+        description: 'Destroy EC2 Instances (yes/no)'
+        required: true
+        default: 'no'
+defaults:
+  run:
+    shell: bash
 
 jobs:
-  terraform:
-    name: 'Terraform'
+  terraform-apply:
+    name: 'Terraform Apply'
     runs-on: ubuntu-latest
-    environment: production
-
-    defaults:
-      run:
-        shell: bash
-
+    environment: development
     steps:
     - name: Checkout
       uses: actions/checkout@v3
-
+    - name: Setup Terraform
+      uses: hashicorp/setup-terraform@v2
     - name: Configure AWS Credentials
-      uses: aws-actions/configure-aws-credentials@v3
+      uses: aws-actions/configure-aws-credentials@v2
       with:
         aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
         aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-        aws-region: us-east-2
+        aws-region: ${{ secrets.AWS_DEFAULT_REGION }}
     
-    - name: Setup Terraform
-      uses: hashicorp/setup-terraform@v2
+    - name: Terraform fmt
+      id: fmt
+      run: terraform fmt -recursive
 
     - name: Terraform Init
+      id: init
+      run: terraform init -no-color
+
+    - name: Terraform Validate
+      id: validate
+      run: terraform validate -no-color
+
+    - name: Terraform Plan
+      id: plan
+      run: |
+       terraform plan -no-color -lock=false -out "tfplan"
+       echo "action_state=yellow" 
+
+    - name: Terraform Apply
+      id: apply
+      run: |
+       terraform apply -auto-approve -no-color -lock=false "tfplan"  
+
+  terraform_destroy:
+    name: 'Terraform Destroy'
+    runs-on: ubuntu-latest
+    environment: development
+    needs: 
+      - terraform-apply
+    if: github.event_name == 'workflow_dispatch' && github.event.inputs.tf_destroy == 'yes'
+    steps: 
+    - name: Terraform Init
+      id: init
       run: terraform init
 
     - name: Terraform Format
+      id: fmt
       run: terraform fmt -check
+      env:
+        TF_ACTION_WORKING_DIR: .
+      continue-on-error: true
 
-    - name: Terraform Plan
-      run: terraform plan -input=false
+    - name: Terraform Validate
+      id: validate
+      run: terraform validate -no-color
 
-    - name: Terraform Apply
-      if: github.ref == 'refs/heads/"main"' && github.event_name == 'push'
-      run: terraform apply -auto-approve -input=false
+    - name: Terraform Destroy
+      id: destroy
+      run: terraform destroy --auto-approve -no-color -lock=false -out "tfplan" 
+      continue-on-error: true   
