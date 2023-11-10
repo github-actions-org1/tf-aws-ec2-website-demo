@@ -1,40 +1,36 @@
-name: 'Terraform Apply'
+name: 'Terraform'
 
 on:
   push:
-    branches:
-      - "main"
+    branches: [ "main" ]
   pull_request:
-  workflow_dispatch:
-    inputs:
-      terraform-destroy:
-        description: 'Destroy EC2 Instances (yes/no)'
-        required: true
-        default: 'no'
 
-env:
-  AWS_ACCESS_KEY_ID: ${{ secrets.aws_access_key_id }}
-  AWS_SECRET_ACCESS_KEY: ${{ secrets.aws_secret_access_key }}
-  AWS_DEFAUT_REGION: ${{ secrets.aws_default_region }}
-  # AWS_KEY_PAIR: ${{ secret.ssh_key_pair }}
-  # AWS_PRIVATE_PAIR: ${{ secret.ssh_private_pair }}
+permissions:
+  contents: read
 
 jobs:
-  terraform-apply:
-    name: 'Terraform Apply'
+  terraform:
+    name: 'Terraform'
     runs-on: ubuntu-latest
-    environment: development
+    environment: production
 
+    # Use the Bash shell regardless whether the GitHub Actions runner is ubuntu-latest, macos-latest, or windows-latest
     defaults:
       run:
         shell: bash
 
     steps:
+    # Checkout the repository to the GitHub Actions runner
     - name: Checkout
-      uses: actions/checkout@v2
+      uses: actions/checkout@v3
 
+    # Install the latest version of Terraform CLI and configure the Terraform CLI configuration file with a Terraform Cloud user API token
     - name: Setup Terraform
-      uses: hashicorp/setup-terraform@v3
+      uses: hashicorp/setup-terraform@v2
+      with:
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        aws-region: ${{ secrets.AWS_DEFAULT_REGION }}
 
     # - name: Configure AWS Credentials
       #uses: aws-actions/configure-aws-credentials@v1
