@@ -16,7 +16,8 @@ env:
   AWS_ACCESS_KEY_ID: ${{ secrets.aws_access_key_id }}
   AWS_SECRET_ACCESS_KEY: ${{ secrets.aws_secret_access_key }}
   AWS_DEFAUT_REGION: ${{ secrets.aws_default_region }}
-  AWS_KEY_PAIR: ${{ secret.aws_key_pair }}
+  AWS_KEY_PAIR: ${{ secret.ssh_key_pair }}
+  AWS_PRIVATE_PAIR: ${{ secret.ssh_private_pair }}
 
 jobs:
   terraform-apply:
