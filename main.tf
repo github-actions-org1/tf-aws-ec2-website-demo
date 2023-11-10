@@ -1,6 +1,6 @@
 resource "aws_key_pair" "ssh_key" {
   key_name   = "ssh_key"
-  public_key = var.ssh_key_pair
+  public_key = var.aws_key_pair
 }
 
 ### To run locally; use the following code

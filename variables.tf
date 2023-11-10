@@ -26,12 +26,12 @@ variable "key_name" {
   default = "web-key"
 }
 
-variable "ssh_key_pair" {
+variable "aws_key_pair" {
   default = ""
   type    = string
 }
 
-variable "ssh_private_pair" {
+variable "aws_private_pair" {
   default = ""
   type    = string
 }
