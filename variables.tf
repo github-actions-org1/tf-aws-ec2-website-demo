@@ -19,11 +19,11 @@ variable "ec2_count" {
 }
 
 variable "ssh_key" {
-  default = "web-key.pem"
+  default = "deployer.pem"
 }
 
 variable "key_name" {
-  default = "web-key"
+  default = "deployer-key"
 }
 
 variable "aws_key_pair" {
