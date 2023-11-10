@@ -1,14 +1,14 @@
-# resource "aws_key_pair" "ssh_key" {
-#   key_name   = "ssh_key"
-#   public_key = var.ssh_private_pair
-# }
+resource "aws_key_pair" "ssh_key" {
+  key_name   = "ssh_key"
+  public_key = var.ssh_private_pair
+}
 
 ### To run locally; use the following code
 
-resource "aws_key_pair" "ssh_key" {
-  key_name   = "ssh_key"
-  public_key = file("~/.ssh/id_rsa.pub")
-}
+# resource "aws_key_pair" "ssh_key" {
+#   key_name   = "ssh_key"
+#   public_key = file("~/.ssh/id_rsa.pub")
+# }
 
 resource "aws_instance" "web-app" {
   ami           = var.instance-ami
