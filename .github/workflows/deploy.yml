@@ -32,8 +32,8 @@ jobs:
         aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
         aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
         aws-region: ${{ secrets.AWS_DEFAULT_REGION }}
-        ssh_key_pair: ${{ secret.SSH_KEY_PAIR }}
-        ssh_private_pair: ${{ secret.SSH_PRIVATE_PAIR }}
+        # ssh_key_pair: ${{ secret.SSH_KEY_PAIR }}
+        # ssh_private_pair: ${{ secret.SSH_PRIVATE_PAIR }}
 
     - name: Terraform fmt
       id: fmt
