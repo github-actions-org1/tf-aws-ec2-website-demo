@@ -8,7 +8,7 @@ GitLab CI/CD is the part of GitLab that you use for all of the continuous method
 Clone or push an existing Git repository with the following command:
 
 ```
-git clone http://gitlab1.kendopz.com/k8s-dev-team/terraform-aws-ec2.git
+git clone https://github.com/cicd-github-action/tf-aws-ec2-web.git
 git add -A 
 git push origin main
 ```
