@@ -24,6 +24,16 @@ _________________________________________________
 1. Describe your instance
 1. Terminate your instance
 
+### Requirements for running this code
+
+Set the following variables in GitHub 
+_________________________________________________
+1. AWS_ACCESS_KEY_ID
+1. AWS_SECRET_ACCESS_KEY
+1. AWS_DEFAULT_REGION
+1. SSH_KEY_PAIR 
+1. SSH_PRIVATE_PAIR
+        
 Initialize your terraform configuration file. To do that; execute:
 ```
 $ terraform init
