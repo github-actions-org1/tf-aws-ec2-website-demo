@@ -1,4 +1,10 @@
+name: 'Terraform EC2 Build Demo'
+
 on:
+  push:
+    branches:
+      - "main"
+  pull_request:
   workflow_dispatch:
     inputs:
       terraform_operation:
