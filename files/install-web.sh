@@ -1,36 +1,33 @@
-#!/bin/bash
-
-sudo yum -y update
-sudo yum -y install httpd
-sudo systemctl start httpd
-sudo systemctl enable httpd
-
-echo "Copying the SSH Key to the server"
-echo -e "ssh-rsa biBkucjlQ== johndoe@pc01" >> /home/ec2-user/.ssh/authorized_keys
-
-cat <<EOF >> /var/www/html/index.html
+<!DOCTYPE html>
 <html>
-<body style="background-color:black;">
+                <head>
+                <title> Week16 LUIT Project </title>
+                </head>
+                <body>
+                <body style="background-color:cornflowerblue;">
+                <h1> Welcome to custom webpage hosted in a Docker container </h1>
+                <p> This container was deployed: <div id="date"></div></p>
 
-<h1 style="color:grey; text-align: center;">Welcome to DevOps Solution Center!!!</h1>
+                <h1 style="color:white;text-align: center;">Our programs are shaped to lead our audience in acquiring a thorough understanding of DevOps and Kubernetes, empowering them to automate the deployment, scaling, and management of applications.</h1>
 
-<h1 style="color:white;text-align: center;">Our programs are designed to guide our audience in gaining comprehensive knowledge of DevOps and Kubernetes, enabling them to automate deployment, scaling, and managing application.</h1>
-
-<h1 style="color:grey; text-align: center;">In this Session, We'll show you everything you'll need to become a DevOps Engineer:</h1>
-
-<ul>
-<h3 style="color:blue;text-align: center; font-size:30px">1. Linux</h3>
-<h3 style="color:blue;text-align: center; font-size:30px">2. VMWare</h3>
-<h3 style="color:blue;text-align: center; font-size:30px">3. AWS Cloud</h3>
-<h3 style="color:blue;text-align: center; font-size:30px">4. Azure Cloud</h3>
-<h3 style="color:blue;text-align: center; font-size:30px">5. Google Cloud</h3>
-<h3 style="color:grey;text-align: center; font-size:30px">6. Ansible</h3>
-<h3 style="color:grey;text-align: center; font-size:30px">7. Terraform IaC</h3>
-<h3 style="color:grey;text-align: center; font-size:30px">8. Kubernestes</h3>
-<h3 style="color:white;text-align: center; font-size:30px">9. OpenShift</h3>
-<h3 style="color:white;text-align: center; font-size:30px">10. ArgoCD</h3>
-<h3 style="color:white;text-align: center; font-size:30px">11. GitLab CICD Pipelines</h3>
-<h3 style="color:white;text-align: center; font-size:30px">12. GitHub Actions Pipelines</h3>
-</ul>
-EOF
-
+                <h1 style="color:grey; text-align: center;">In this tutorial, we will cover everything you need to become a DevOps Engineer:</h1>
+                <ul>
+                <h1 style="color:white;text-align: center; font-size:20px">Linux</h1>
+                <h1 style="color:white;text-align: center; font-size:20px">Docker</h1>
+                <h1 style="color:white;text-align: center; font-size:20px">Kubernetes</h1>     
+                <h1 style="color:white;text-align: center; font-size:20px">OpenShift</h1>                               
+                <h1 style="color:white;text-align: center; font-size:20px">Ansible</h1>
+                <h1 style="color:white;text-align: center; font-size:20px">Terraform IaC</h1>            
+                <h1 style="color:white;text-align: center; font-size:20px">VMWare</h1>
+                <h1 style="color:white;text-align: center; font-size:20px">Amazon Web Services</h1>
+                <h1 style="color:white;text-align: center; font-size:20px">Microsoft Azure</h1>
+                <h1 style="color:white;text-align: center; font-size:20px">Google Cloud</h1>
+                <h1 style="color:white;text-align: center; font-size:20px">GitOps with ArgoCD</h1>
+                <h1 style="color:white;text-align: center; font-size:20px">GitLab CICD Pipelines</h1>
+                <h1 style="color:white;text-align: center; font-size:20px">GitHub Actions Pipelines</h1>
+                <script>
+                        var date = new Date();
+                        document.getElementById("date").innerHTML=date.toLocaleString();
+                </script>
+        </body>
+</html>
