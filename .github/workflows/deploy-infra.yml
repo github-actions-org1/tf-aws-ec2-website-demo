@@ -1,25 +1,25 @@
-
-name: Infra deploy
+name: 'Infra deploy'
 
 on:
+  push:
+    branches:
+      - "main"
+  pull_request:
   workflow_dispatch:
     inputs:
       terraform-destroy:
-        type: boolean
-        description: Destroy environment?
+        description: 'Infra deploy (yes/no)'
         required: true
-        default: false
+        default: 'no'
 
 jobs:
-  terraform-apply:
-    name: 'Terraform Apply'
+  terraform-plan:
+    name: 'Terraform Plan'
     runs-on: ubuntu-latest
-    environment: development
 
     defaults:
       run:
         shell: bash
-    if: github.ref == 'refs/heads/terraform' && github.event_name == 'push'
 
     steps:
     - name: Checkout
@@ -40,31 +40,45 @@ jobs:
     - name: Terraform Init
       id: init
       run: terraform init
+      working-directory: ./
 
     - name: Terraform Format
       id: fmt
       run: terraform fmt -check
-      env:
-        TF_ACTION_WORKING_DIR: .
-      continue-on-error: true
+      working-directory: ./
 
     - name: Terraform Validate
       id: validate
       run: terraform validate -no-color
 
+  terraform-apply:
+    name: 'Terraform Plan'
+    runs-on: ubuntu-latest
+
+    defaults:
+      run:
+        shell: bash
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v3
+
+    - name: Setup Terraform
+      uses: hashicorp/setup-terraform@v2
+      with:
+        terraform_version: 1.6.2
+
+    - name: Configure AWS Credentials
+      uses: aws-actions/configure-aws-credentials@v2
+      with:
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        aws-region: ${{ secrets.AWS_DEFAULT_REGION }}
+
     - name: Terraform Plan
       id: plan
-      if: github.event_name == 'pull_request'
-      run: terraform plan -no-color
-      continue-on-error: true
-
-    - name: Terraform Plan Status
-      if: steps.plan.outcome == 'failure'
-      run: exit 1
-
-    - name: Terraform Apply
-      if: github.ref == 'refs/heads/main' && github.event_name == 'push'
-      run: terraform apply -auto-approve -lock=false
+      run: terraform plan -out tfapply  -lock=false
+      working-directory: ./
 
   terraform-destroy:
     name: 'Terraform Destroy'
@@ -78,18 +92,7 @@ jobs:
       id: init
       run: terraform init
 
-    - name: Terraform Format
-      id: fmt
-      run: terraform fmt -check
-      env:
-        TF_ACTION_WORKING_DIR: .
-      continue-on-error: true
-
-    - name: Terraform Validate
-      id: validate
-      run: terraform validate -no-color
-
     - name: Terraform Destroy
       id: destroy
-      run: terraform destroy 
+      run: terraform destroy --auto-approve -no-color
       continue-on-error: true
