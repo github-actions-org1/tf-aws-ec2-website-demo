@@ -10,7 +10,7 @@ on:
       terraform-destroy:
         description: 'Infra deploy (yes/no)'
         required: true
-        default: 'no'
+        default: 'yes'
 
 jobs:
   terraform-plan:
@@ -82,10 +82,10 @@ jobs:
         aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
         aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
         aws-region: ${{ secrets.AWS_DEFAULT_REGION }}
-    - name: Terraform Init
-      id: init
-      run: terraform init
-      working-directory: ./
+    # - name: Terraform Init
+    #   id: init
+    #   run: terraform init
+    #   working-directory: ./
 
     - name: Terraform Destroy
       id: destroy
