@@ -1,3 +1,17 @@
+name: 'Terraform EC2 Build Demo'
+
+# on:
+#   push:
+#     branches:
+#       - "main"
+#   pull_request:
+#   workflow_dispatch:
+#     inputs:
+#       terraform-destroy:
+#         description: 'Destroy EC2 Instances (yes/no)'
+#         required: true
+#         default: 'no'
+
 on:
   workflow_dispatch:
     inputs:
@@ -11,35 +25,41 @@ on:
           - apply
           - destroy
 
+                  
 jobs:
-  terraform:
-    name: "terraform"
+  terraform-apply:
+    name: 'Terraform Apply'
     runs-on: ubuntu-latest
+
+    # defaults:
+    #   run:
+    #     shell: bash
+
     steps:
-      - name: Checkout Code
-        uses: actions/checkout@v3
+    - name: Checkout
+      uses: actions/checkout@v3
 
-      - name: Setup Terraform
-        uses: hashicorp/setup-terraform@v2
+    - name: Setup Terraform
+      uses: hashicorp/setup-terraform@v2
 
-      - name: Configure AWS Credentials
-        uses: aws-actions/configure-aws-credentials@v2
-        with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: ${{ secrets.AWS_DEFAULT_REGION }}
+    - name: Configure AWS Credentials
+      uses: aws-actions/configure-aws-credentials@v2
+      with:
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        aws-region: ${{ secrets.AWS_DEFAULT_REGION }}
 
-      - name: Terraform init
-        run: terraform init
+    - name: Terraform init
+      run: terraform init
 
-      - name: Terraform plan
-        run: terraform plan
-        if: "${{ github.event.inputs.terraform_operation == 'plan' }}"
+    - name: Terraform plan
+      run: terraform plan
+      if: "${{ github.event.inputs.terraform_operation == 'plan' }}"
 
-      - name: Terraform apply
-        run: terraform apply --auto-approve
-        if: "${{ github.event.inputs.terraform_operation == 'apply' }}"
+    - name: Terraform apply
+      run: terraform apply --auto-approve
+      if: "${{ github.event.inputs.terraform_operation == 'apply' }}"
 
-      - name: Terraform destroy
-        run: terraform destroy --auto-approve
-        if: "${{ github.event.inputs.terraform_operation == 'destroy' }}"
+    - name: Terraform destroy
+      run: terraform destroy --auto-approve
+      if: "${{ github.event.inputs.terraform_operation == 'destroy' }}"
