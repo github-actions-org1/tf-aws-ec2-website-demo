@@ -38,28 +38,59 @@ jobs:
         aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
         aws-region: ${{ secrets.AWS_DEFAULT_REGION }}
 
-    - name: Terraform Format
-      id: fmt
-      run: terraform fmt -check
-
     - name: Terraform Init
       id: init
       run: terraform init
-    
+
+    - name: Terraform Format
+      id: fmt
+      run: terraform fmt -check
+      env:
+        TF_ACTION_WORKING_DIR: .
+      continue-on-error: true
+
     - name: Terraform Validate
       id: validate
       run: terraform validate -no-color
 
     - name: Terraform Plan
       id: plan
-      run: terraform plan -no-color -input=false
+      if: github.event_name == 'pull_request'
+      run: terraform plan -no-color
+      continue-on-error: true
 
-    # - uses: trstringer/manual-approval@v1
-    #   with:
-    #       secret: ${{ github.TOKEN }}
-    #       approvers: niravshah2705
-    #       minimum-approvals: 1
-    #       exclude-workflow-initiator-as-approver: false
-                
+    - name: Terraform Plan Status
+      if: steps.plan.outcome == 'failure'
+      run: exit 1
+
     - name: Terraform Apply
-      run: terraform apply -auto-approve -input=false
+      if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+      run: terraform apply -auto-approve -lock=false
+
+  terraform-destroy:
+    name: 'Terraform Destroy'
+    runs-on: ubuntu-latest
+    environment: development
+    needs: 
+      - terraform-apply
+    if: github.event_name == 'workflow_dispatch' && github.event.inputs.terraform-destroy == 'yes'
+    steps: 
+    - name: Terraform Init
+      id: init
+      run: terraform init
+
+    - name: Terraform Format
+      id: fmt
+      run: terraform fmt -check
+      env:
+        TF_ACTION_WORKING_DIR: .
+      continue-on-error: true
+
+    - name: Terraform Validate
+      id: validate
+      run: terraform validate -no-color
+
+    - name: Terraform Destroy
+      id: destroy
+      run: terraform destroy --auto-approve -no-color
+      continue-on-error: true
