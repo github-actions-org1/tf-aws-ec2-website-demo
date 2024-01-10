@@ -1,18 +1,10 @@
 name: 'Terraform EC2 Build Demo'
 
-# on:
-#   push:
-#     branches:
-#       - "main"
-#   pull_request:
-#   workflow_dispatch:
-#     inputs:
-#       terraform-destroy:
-#         description: 'Destroy EC2 Instances (yes/no)'
-#         required: true
-#         default: 'no'
-
 on:
+  push:
+    branches:
+      - "main"
+  pull_request:
   workflow_dispatch:
     inputs:
       terraform_operation:
@@ -24,16 +16,15 @@ on:
           - plan
           - apply
           - destroy
-
                   
 jobs:
   terraform-apply:
     name: 'Terraform Apply'
     runs-on: ubuntu-latest
 
-    # defaults:
-    #   run:
-    #     shell: bash
+    defaults:
+      run:
+        shell: bash
 
     steps:
     - name: Checkout
