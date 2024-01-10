@@ -1,58 +1,49 @@
+on:
+  workflow_dispatch:
+    # Inputs the workflow expects.
+    inputs:
+      tfpath:
+        description: 'TF File Path'     
+        required: false
+        default: 'aws_samples/create_ec2'
 jobs:
-    plan-apply:
-      working_directory: /tmp/project
-      docker:
-        - image: docker.mirror.hashicorp.services/hashicorp/terraform:light
-      steps:
-        - checkout
-        - run:
-            name: terraform init & plan
-            command: |
-              terraform init -input=false
-              terraform plan -out tfapply -var-file terraform.tfvars
-        - persist_to_workspace:
-            root: .
-            paths:
-              - .
+  tf_code_check:
+    name: Terraform Validation and Build
+    runs-on: ubuntu-latest
 
-apply:
-docker:
-    - image: docker.mirror.hashicorp.services/hashicorp/terraform:light
-steps:
-    - attach_workspace:
-        at: .
-    - run:
-        name: terraform
-        command: |
-         terraform apply -input=false --auto-approve tfapply -lock=false
-    - persist_to_workspace:
-        root: .
-        paths:
-        - .
+    if:  ${{ inputs.tfpath }} 
+    steps:
+    - uses: actions/checkout@v2.5.0
 
-        plan-destroy:
-            docker:
-              - image: docker.mirror.hashicorp.services/hashicorp/terraform:light
-            steps:
-              - attach_workspace:
-                  at: .
-              - run:
-                  name: terraform create destroy plan
-                  command: |
-                    terraform plan -destroy -out tfdestroy -var-file terraform.tfvars
-              - persist_to_workspace:
-                  root: .
-                  paths:
-                    - .
-          
-          destroy:
-            docker:
-              - image: docker.mirror.hashicorp.services/hashicorp/terraform:light
-            steps:
-              - attach_workspace:
-                  at: .
-              - run:
-                  name: terraform destroy
-                  command: |
-                    terraform apply -auto-approve tfdestroy
-                  
+
+    - name: Configure AWS Credentials Action For GitHub Actions
+      uses: aws-actions/configure-aws-credentials@v1
+      with:
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        aws-region: ${{ secrets.AWS_DEFAULT_REGION }}
+    - name: Setup Terraform CLI
+      uses: hashicorp/setup-terraform@v2.0.2
+
+    - name: Terraform init, plan and apply
+      run: |
+        echo `pwd`
+        echo "tfpath ${{ github.event.inputs.tfpath }}"
+        echo "** Running Terraform Init**"
+        terraform init
+
+        echo "** Running Terraform Validate**"
+        terraform validate
+
+        echo "** Running Terraform Plan**"
+        terraform plan
+
+#        echo "** Running Terraform Apply**"
+#        terraform apply -auto-approve
+      working-directory: ${{ github.event.inputs.tfpath }}
+    - name: Terraform Destroy
+      run: |
+        echo "** Running Terraform Destroy**"
+        terraform plan -destroy
+#        terraform destroy -auto-approve
+      working-directory: ${{ github.event.inputs.tfpath }}
