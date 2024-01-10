@@ -1,0 +1,41 @@
+name: 'Terraform EC2 Build Demo'
+
+on:
+  push:
+    branches:
+      - "main"
+  pull_request:
+  workflow_dispatch:
+    inputs:
+      terraform-destroy:
+        description: 'Destroy EC2 Instances (yes/no)'
+        required: true
+        default: 'no'
+
+jobs:
+  terraform-destroy:
+    name: 'Terraform Destroy'
+    runs-on: ubuntu-latest
+    environment: development
+    needs: 
+      - terraform-apply
+    steps: 
+    - name: Terraform Init
+      id: init
+      run: terraform init
+
+    - name: Terraform Format
+      id: fmt
+      run: terraform fmt -check
+      env:
+        TF_ACTION_WORKING_DIR: .
+      continue-on-error: true
+
+    - name: Terraform Validate
+      id: validate
+      run: terraform validate -no-color
+
+    - name: Terraform Destroy
+      id: destroy
+      run: terraform destroy --auto-approve -no-color
+      continue-on-error: true
