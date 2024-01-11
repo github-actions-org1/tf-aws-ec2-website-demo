@@ -1,4 +1,4 @@
-name: 'Terraform Plan/Apply/Destroy'
+name: 'Terraform Plan/Apply'
 
 on:
   push:
@@ -7,12 +7,6 @@ on:
   pull_request:
     branches:
     - main
-  workflow_dispatch:
-    inputs:
-      terraform-destroy:
-        description: 'Infra deploy (yes/no)'
-        required: true
-        default: 'yes'
 
 #Special permissions required for OIDC authentication
 permissions:
