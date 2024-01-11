@@ -43,6 +43,7 @@ jobs:
         terraform plan -out tfapply  -lock=false
       working-directory: ./
 
+  jobs:
   terraform-apply:
     name: 'Terraform Apply'
     runs-on: ubuntu-latest
