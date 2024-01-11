@@ -16,10 +16,10 @@ jobs:
   terraform-plan:
     name: 'Terraform Plan'
     runs-on: ubuntu-latest
+    environment: "/"
     defaults:
       run:
-        shell: bash
-
+        working-directory: ./${{env.tf_directory}}
     steps:
     - name: Checkout
       uses: actions/checkout@v3
@@ -36,13 +36,12 @@ jobs:
         aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
         aws-region: ${{ secrets.AWS_DEFAULT_REGION }}
 
-    - name: Terraform Init
+    - name: Terraform Init & Plan 
       id: plan
       run: |
         terraform init -reconfigure
         terraform plan -out tfapply  -lock=false
       working-directory: ./
-
 
   terraform-apply:
     name: 'Terraform Apply'
@@ -51,9 +50,10 @@ jobs:
       - terraform-plan
     if: github.event_name == 'workflow_dispatch' && github.event.inputs.terraform-plan == 'yes'
 
+    environment: "/"
     defaults:
       run:
-        shell: bash
+        working-directory: ./${{env.tf_directory}}
 
     steps:
     - name: Checkout
@@ -83,10 +83,10 @@ jobs:
       - terraform-apply
     if: github.event_name == 'workflow_dispatch' && github.event.inputs.terraform-apply == 'yes'
        
+    environment: "/"
     defaults:
       run:
-        shell: bash
-
+        working-directory: ./${{env.tf_directory}}
     steps:
     - name: Checkout
       uses: actions/checkout@v3

@@ -37,14 +37,13 @@ jobs:
         aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
         aws-region: ${{ secrets.AWS_DEFAULT_REGION }}
 
-    - name: Terraform Init
+    - name: Terraform Init & Plan
       id: plan
       run: |
         terraform init -reconfigure
         terraform plan -out tfapply  -lock=false
       working-directory: ./
 
-  jobs:
   terraform-apply:
     name: 'Terraform Apply'
     runs-on: ubuntu-latest
