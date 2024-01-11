@@ -1,4 +1,4 @@
-name: 'Terraform EC2 Build Demo'
+name: 'Infra deploy'
 
 on:
   push:
@@ -8,34 +8,97 @@ on:
   workflow_dispatch:
     inputs:
       terraform-destroy:
-        description: 'Destroy EC2 Instances (yes/no)'
+        description: 'Infra deploy (yes/no)'
         required: true
-        default: 'no'
+        default: 'yes'
 
 jobs:
+  terraform-plan:
+    name: 'Terraform Plan'
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        shell: bash
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v3
+
+    - name: Setup Terraform
+      uses: hashicorp/setup-terraform@v2
+      with:
+        terraform_version: 1.6.2
+
+    - name: Configure AWS Credentials
+      uses: aws-actions/configure-aws-credentials@v2
+      with:
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        aws-region: ${{ secrets.AWS_DEFAULT_REGION }}
+
+    - name: Terraform Init
+      id: plan
+      run: |
+        terraform init -reconfigure
+        terraform plan -out tfapply  -lock=false
+      working-directory: ./
+
+  terraform-apply:
+    name: 'Terraform Apply'
+    runs-on: ubuntu-latest
+    needs: 
+      - terraform-plan
+    if: github.event_name == 'workflow_dispatch' && github.event.inputs.terraform-plan == 'yes'
+
+    defaults:
+      run:
+        shell: bash
+
+    steps:
+    - name: Configure AWS Credentials
+      uses: aws-actions/configure-aws-credentials@v2
+      with:
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        aws-region: ${{ secrets.AWS_DEFAULT_REGION }}
+
+    - name: Terraform Apply
+      id: apply
+      run: terraform plan -out tfapply  -lock=false
+      working-directory: ./
+
   terraform-destroy:
     name: 'Terraform Destroy'
     runs-on: ubuntu-latest
-    environment: development
     needs: 
       - terraform-apply
-    steps: 
-    - name: Terraform Init
-      id: init
-      run: terraform init
+    if: github.event_name == 'workflow_dispatch' && github.event.inputs.terraform-apply == 'yes'
+       
+    defaults:
+      run:
+        shell: bash
 
-    - name: Terraform Format
-      id: fmt
-      run: terraform fmt -check
-      env:
-        TF_ACTION_WORKING_DIR: .
-      continue-on-error: true
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v3
 
-    - name: Terraform Validate
-      id: validate
-      run: terraform validate -no-color
+    - name: Setup Terraform
+      uses: hashicorp/setup-terraform@v2
+      with:
+        terraform_version: 1.6.2
+
+    - name: Configure AWS Credentials
+      uses: aws-actions/configure-aws-credentials@v2
+      with:
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        aws-region: ${{ secrets.AWS_DEFAULT_REGION }}
 
     - name: Terraform Destroy
       id: destroy
-      run: terraform destroy --auto-approve -no-color
-      continue-on-error: true
+      run: terraform destroy --auto-approve tfapply
+      working-directory: ./
+                  
+
+
+
