@@ -16,9 +16,10 @@ jobs:
   terraform-plan:
     name: 'Terraform Plan'
     runs-on: ubuntu-latest
+    environment: "/"
     defaults:
       run:
-        shell: bash
+        working-directory: ./${{env.tf_directory}}
 
     steps:
     - name: Checkout
@@ -51,9 +52,11 @@ jobs:
       - terraform-plan
     if: github.event_name == 'workflow_dispatch' && github.event.inputs.terraform-plan == 'yes'
 
+    environment: "/"
     defaults:
       run:
-        shell: bash
+        working-directory: ./${{env.tf_directory}}
+
 
     steps:
     - name: Configure AWS Credentials
@@ -75,9 +78,10 @@ jobs:
       - terraform-apply
     if: github.event_name == 'workflow_dispatch' && github.event.inputs.terraform-apply == 'yes'
        
+    environment: "/"
     defaults:
       run:
-        shell: bash
+        working-directory: ./${{env.tf_directory}}
 
     steps:
     - name: Checkout
